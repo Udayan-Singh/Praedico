@@ -1,0 +1,9 @@
+.employee{
+    display: flex;
+}
+
+.detail{
+    align-items: center;
+    flex-direction: row;
+}
+
