@@ -5,13 +5,7 @@ const Admin = require('../models/adminModel');
 const Employee = require('../models/employeeModel');
 require('dotenv').config();
 
-// Show all admins
-const displayAllAdmin = asyncHandler(async (req,res) => {
-    const admin = await Admin.find({});
-    res.send(admin);
-})
-
-// Create a new admin
+// CREATE A NEW ADMIN
 const createNewAdmin = asyncHandler(async (req,res) => {
     const {name,email,password} = req.body;
 
@@ -23,9 +17,9 @@ const createNewAdmin = asyncHandler(async (req,res) => {
     })
 
     res.send(admin);
-
 })
 
+// CREATE A EMPLOYEE AS ADMIN
 const createEmployee = asyncHandler(async (req,res) => {
     
     const {
@@ -75,23 +69,12 @@ const createEmployee = asyncHandler(async (req,res) => {
 
 })
 
-const createIntern = asyncHandler(async (req,res) => {
-    const {email, name, password, managedBy} = req.body;
-    const hashedPassword = await bcrypt.hash(password, 10);
-    const intern = await Intern.create({
-        name,
-        email,
-        managedBy,
-        password: hashedPassword
-    });
-
-    res.send(intern)
-})
-
+// GET ADMIN LOGIN PAGE
 const getLogin = asyncHandler (async (req,res) => {
-    res.render('adminLogin', {isAdmin: true})
+    res.render('adminLogin')
 })
 
+// LOGIN FUNCTIONALITY: ADD ACCESS TOKEN IN COOKIES,
 const postLogin = asyncHandler (async (req,res) => {
     const {email, password} = req.body;
 
@@ -114,18 +97,25 @@ const postLogin = asyncHandler (async (req,res) => {
         console.log(accessToken);
         console.log();
         console.log();
-
         return res.redirect('/admin/dashboard')
     }
 })
 
+// SEE ALL EMPLOYEES 
 const seeEmployees = asyncHandler (async (req,res) => {
     const employee = await Employee.find({});
 
     res.send(employee);
 })
 
+// SHOW EMPLOYEE CREATION PAGE
 const registerEmployee = asyncHandler (async (req,res) => {
     res.render('newEmployee')
 })
-module.exports = {displayAllAdmin, createNewAdmin, createEmployee, createIntern, getLogin, postLogin, seeEmployees, registerEmployee};
+
+// SHOW ADMIN DASHBOARD PAGE
+const adminDashboard = asyncHandler(async (req,res) => {
+    res.render('adminDashboard');
+});
+
+module.exports = { createNewAdmin, createEmployee, getLogin, postLogin, seeEmployees, registerEmployee, adminDashboard};

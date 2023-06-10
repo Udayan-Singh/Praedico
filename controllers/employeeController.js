@@ -1,45 +1,19 @@
 const asyncHandler = require('express-async-handler');
 const bcrypt = require('bcrypt');
+const jwt = require('jsonwebtoken');
 const Employee = require('../models/employeeModel');
 
-const getEmployeeList = asyncHandler(async (req,res) => {
-    const employee = await Employee.find({});
-    res.send(employee);
-})
-
-// const getEmployee = asyncHandler(async (req,res) => {
-//     const {id} = req.params;
-    
-//     const employee = await Employee.findById({_id: id});
-//     res.send(employee);
-// })
-
-const createIntern = asyncHandler(async (req,res) => {
-    const {email, name, password, managedBy} = req.body;
-    const hashedPassword = await bcrypt.hash(password, 10);
-    const intern = await Intern.create({
-        name,
-        email,
-        managedBy,
-        password: hashedPassword
-    });
-
-    res.send(intern)
-})
-
-const getAllInterns = asyncHandler(async (req,res) => {
-    const intern = await Intern.find({});
-    res.send(intern);
-})
-
+// SHOW LOGIN PAGE
 const getLogin = asyncHandler (async (req,res) => {
     res.render('index');
 })
 
+// SHOW REGISTER PAGE
 const getRegisterPage = asyncHandler (async (req,res) => {
     res.render('register');
 })
 
+// LOGIN FUNCTIONALITY AFTER POST METHOD
 const getEmployee = asyncHandler (async (req,res) => {
 
     const {email, password} = req.body;
@@ -49,7 +23,17 @@ const getEmployee = asyncHandler (async (req,res) => {
 
     const employee = await Employee.findOne({email});
 
-    if(await bcrypt.compare(password, employee.password)){
+    if(employee && await bcrypt.compare(password, employee.password)){
+
+        const accessToken = jwt.sign({
+            name: employee.fname,
+            email: employee.email,
+        }
+        , process.env.SECRET_KEY, {expiresIn: '2h'});
+
+        res.cookie("access_token", accessToken, {
+            httpOnly: true,
+        });
 
         if(employee.isHead){
             return res.redirect(`/employee/manager/${employee._id}`);
@@ -62,13 +46,7 @@ const getEmployee = asyncHandler (async (req,res) => {
     
 })
 
-const getRegister = asyncHandler (async (req,res) => {
-
-    const {id} = req.params;
-    const manager = await Employee.findOne({_id: id});
-    res.render('managerCreateNewEmployee', {manager:manager});
-})
-
+// SHOW EMPLOYEES UNDER A MANAGER
 const getDashboard = asyncHandler (async (req,res) => {
 
     const {id} = req.params;
@@ -80,4 +58,5 @@ const getDashboard = asyncHandler (async (req,res) => {
     const employees = await Employee.find({managedBy: managerEmail});
     res.render('employeeDashboard', {employees: employees})
 })
-module.exports = {getEmployeeList, getEmployee, createIntern, getAllInterns, getLogin, getRegisterPage, getDashboard};
+
+module.exports = {getEmployee, getLogin, getRegisterPage, getDashboard};

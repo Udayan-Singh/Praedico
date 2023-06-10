@@ -1,21 +1,17 @@
 const express = require('express');
-const { registerEmployee, displayAllAdmin, createNewAdmin, createEmployee, createIntern, getLogin, postLogin, seeEmployees } = require('../controllers/adminController');
+const { registerEmployee, createEmployee,  getLogin, postLogin, seeEmployees, adminDashboard } = require('../controllers/adminController');
 const validateToken = require('../middleware/adminToken');
 const router = express.Router();
 
-router.get('/list', displayAllAdmin);
-router.get('/login', getLogin);
 
-router.get('/dashboard',validateToken ,async (req,res) => {
-    res.render('adminDashboard');
-})
-
-router.get('/seeEmployees',validateToken,seeEmployees)
-router.get('/createEmployee',validateToken ,registerEmployee)
+// GET ROUTES
+router.get('/login', getLogin); //SHOW LOGIN PAGE 
+router.get('/dashboard',validateToken ,adminDashboard) //SHOW ADMIN DASHBOARD AFTER AUTHENTICATION. PRIVATE ROUTE
+router.get('/seeEmployees',validateToken,seeEmployees) //SHOW ALL EMPLOYEES. PRIVATE ROUTE
+router.get('/createEmployee',validateToken ,registerEmployee) //SHOW REGISTER EMPLOYEE PAGE. PRIVATE ROUTE
 
 // POST ROUTES
-router.post('/create',createNewAdmin); //CREATE A NEW ADMIN
 router.post('/createEmployee',createEmployee) //CREATE A NEW EMPLOYEE
-router.post('/login', postLogin)
+router.post('/login', postLogin) //LOGIN
 
 module.exports = router;
